@@ -47,7 +47,7 @@ export function Home() {
     FilterStatus.DONE,
   ];
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!description.trim()) {
       return Alert.alert('Adicionar', 'Informe a descrição para adicionar');
     }
@@ -57,11 +57,14 @@ export function Home() {
       description,
       status: FilterStatus.PENDING,
     };
+
+    await itemsStorage.add(newItem);
+    await itemsByStatus();
   }
 
-  async function getItems() {
+  async function itemsByStatus() {
     try {
-      const response = await itemsStorage.get();
+      const response = await itemsStorage.getByStatus(filter);
       setItems(response);
     } catch (error) {
       console.log(error);
@@ -71,8 +74,8 @@ export function Home() {
   }
 
   useEffect(() => {
-    getItems();
-  }, []);
+    itemsByStatus();
+  }, [filter]);
 
   return (
     <View style={styles.container}>
