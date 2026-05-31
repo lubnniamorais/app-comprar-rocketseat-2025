@@ -18,25 +18,6 @@ import { itemsStorage, ItemStorage } from '@/storage/itemsStorage';
 
 import { styles } from './styles';
 
-const FILTER_STATUS: FilterStatus[] = [FilterStatus.PENDING, FilterStatus.DONE];
-const ITENS = [
-  {
-    id: '1',
-    status: FilterStatus.DONE,
-    description: 'Café',
-  },
-  {
-    id: '2',
-    status: FilterStatus.PENDING,
-    description: 'Leite',
-  },
-  {
-    id: '3',
-    status: FilterStatus.PENDING,
-    description: 'Chocolate',
-  },
-];
-
 export function Home() {
   const [filter, setFilter] = useState(FilterStatus.PENDING);
   const [description, setDescription] = useState('');
@@ -60,6 +41,10 @@ export function Home() {
 
     await itemsStorage.add(newItem);
     await itemsByStatus();
+
+    Alert.alert('Adicionado', `Adicionado ${description}`);
+    setFilter(FilterStatus.PENDING);
+    setDescription('');
   }
 
   async function itemsByStatus() {
@@ -70,6 +55,15 @@ export function Home() {
       console.log(error);
 
       Alert.alert('Erro', 'Não foi possível filtrar os itens');
+    }
+  }
+
+  async function handleRemoveItems(id: string) {
+    try {
+      await itemsStorage.remove(id);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Remover', 'Nao foi possivel remover o item');
     }
   }
 
@@ -85,7 +79,9 @@ export function Home() {
         <Input
           placeholder='O que você precisa comprar?'
           onChangeText={setDescription}
+          value={description}
         />
+
         <Button title='Adicionar' onPress={handleAdd} />
       </View>
 
@@ -112,7 +108,7 @@ export function Home() {
             <Item
               data={item}
               onStatus={() => console.log('onStatus')}
-              onRemove={() => console.log('onRemove')}
+              onRemove={() => handleRemoveItems(item.id)}
             />
           )}
           showsVerticalScrollIndicator={false}
